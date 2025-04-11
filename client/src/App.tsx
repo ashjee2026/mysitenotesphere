@@ -61,18 +61,26 @@ function Router({ isAuthenticated, isAdmin }: { isAuthenticated: boolean; isAdmi
       <Route path="/class/:id" component={ClassPage} />
       <Route path="/subject/:id" component={SubjectPage} />
       <Route path="/about" component={AboutPage} />
-      <Route path="/admin/login" component={AdminLogin} />
       
-      {/* Protected admin routes */}
-      <Route path="/admin">
-        {() => <ProtectedAdminRoute component={AdminIndex} isAuthenticated={isAuthenticated} isAdmin={isAdmin} />}
-      </Route>
-      <Route path="/admin/books">
-        {() => <ProtectedAdminRoute component={BookManagement} isAuthenticated={isAuthenticated} isAdmin={isAdmin} />}
-      </Route>
-      <Route path="/admin/classes">
-        {() => <ProtectedAdminRoute component={ClassManagement} isAuthenticated={isAuthenticated} isAdmin={isAdmin} />}
-      </Route>
+      {/* Only show admin login to non-authenticated users */}
+      {!isAuthenticated && (
+        <Route path="/admin/login" component={AdminLogin} />
+      )}
+      
+      {/* Protected admin routes - only visible to admins */}
+      {isAdmin && isAuthenticated && (
+        <>
+          <Route path="/admin">
+            {() => <ProtectedAdminRoute component={AdminIndex} isAuthenticated={isAuthenticated} isAdmin={isAdmin} />}
+          </Route>
+          <Route path="/admin/books">
+            {() => <ProtectedAdminRoute component={BookManagement} isAuthenticated={isAuthenticated} isAdmin={isAdmin} />}
+          </Route>
+          <Route path="/admin/classes">
+            {() => <ProtectedAdminRoute component={ClassManagement} isAuthenticated={isAuthenticated} isAdmin={isAdmin} />}
+          </Route>
+        </>
+      )}
       
       <Route component={NotFound} />
     </Switch>

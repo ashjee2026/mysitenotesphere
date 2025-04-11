@@ -94,10 +94,10 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
                 About
               </span>
             </Link>
-            {isAdmin && (
+            {isAuthenticated && isAdmin && (
               <Link href="/admin">
                 <span className={`text-gray-700 hover:text-primary px-2 py-1 rounded-md cursor-pointer ${location.startsWith('/admin') ? 'font-medium text-primary' : ''}`}>
-                  Admin
+                  Admin Panel
                 </span>
               </Link>
             )}
