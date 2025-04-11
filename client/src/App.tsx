@@ -1,5 +1,5 @@
 import { Switch, Route } from "wouter";
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -18,14 +18,16 @@ function Router() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <div className="flex-1">
-        <Switch>
-          <Route path="/" component={Home} />
-          <Route path="/category/:categoryId" component={Category} />
-          <Route path="/auth" component={AuthPage} />
-          <Route path="/about" component={lazy(() => import("@/pages/about"))} />
-          <ProtectedRoute path="/admin" component={AdminPage} adminOnly={true} />
-          <Route component={NotFound} />
-        </Switch>
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+          <Switch>
+            <Route path="/" component={Home} />
+            <Route path="/category/:categoryId" component={Category} />
+            <Route path="/auth" component={AuthPage} />
+            <Route path="/about" component={lazy(() => import("@/pages/about"))} />
+            <ProtectedRoute path="/admin" component={AdminPage} adminOnly={true} />
+            <Route component={NotFound} />
+          </Switch>
+        </Suspense>
       </div>
       <Footer />
     </div>
