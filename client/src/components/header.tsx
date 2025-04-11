@@ -82,6 +82,26 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
               <span className="font-bold text-xl text-primary">NoteSphere</span>
             </a>
           </Link>
+          
+          <nav className="hidden md:flex space-x-4 ml-4">
+            <Link href="/">
+              <a className={`text-gray-700 hover:text-primary px-2 py-1 rounded-md ${location === '/' ? 'font-medium text-primary' : ''}`}>
+                Home
+              </a>
+            </Link>
+            <Link href="/about">
+              <a className={`text-gray-700 hover:text-primary px-2 py-1 rounded-md ${location === '/about' ? 'font-medium text-primary' : ''}`}>
+                About
+              </a>
+            </Link>
+            {isAdmin && (
+              <Link href="/admin">
+                <a className={`text-gray-700 hover:text-primary px-2 py-1 rounded-md ${location.startsWith('/admin') ? 'font-medium text-primary' : ''}`}>
+                  Admin
+                </a>
+              </Link>
+            )}
+          </nav>
         </div>
         
         <div className="flex items-center space-x-4">

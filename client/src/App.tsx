@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -7,10 +7,12 @@ import AppLayout from "@/layouts/app-layout";
 import HomePage from "@/pages/home";
 import ClassPage from "@/pages/class-page";
 import SubjectPage from "@/pages/subject-page";
+import AboutPage from "@/pages/about";
 import AdminIndex from "@/pages/admin/index";
 import BookManagement from "@/pages/admin/book-management";
 import ClassManagement from "@/pages/admin/class-management";
-import { useState, useEffect } from "react";
+import AdminLogin from "@/pages/admin/login";
+import { useState, useEffect, FC, ReactNode } from "react";
 
 // Auth context
 import { createContext } from "react";
@@ -31,15 +33,47 @@ export const AuthContext = createContext<AuthContextType>({
   logout: async () => {},
 });
 
-function Router() {
+// Protected route component for admin routes
+interface ProtectedRouteProps {
+  component: FC;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+}
+
+function ProtectedAdminRoute({ component: Component, isAuthenticated, isAdmin }: ProtectedRouteProps) {
+  const [, setLocation] = useLocation();
+  
+  if (!isAuthenticated) {
+    return <Redirect to="/admin/login" />;
+  }
+  
+  if (!isAdmin) {
+    return <Redirect to="/" />;
+  }
+  
+  return <Component />;
+}
+
+function Router({ isAuthenticated, isAdmin }: { isAuthenticated: boolean; isAdmin: boolean }) {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
       <Route path="/class/:id" component={ClassPage} />
       <Route path="/subject/:id" component={SubjectPage} />
-      <Route path="/admin" component={AdminIndex} />
-      <Route path="/admin/books" component={BookManagement} />
-      <Route path="/admin/classes" component={ClassManagement} />
+      <Route path="/about" component={AboutPage} />
+      <Route path="/admin/login" component={AdminLogin} />
+      
+      {/* Protected admin routes */}
+      <Route path="/admin">
+        {() => <ProtectedAdminRoute component={AdminIndex} isAuthenticated={isAuthenticated} isAdmin={isAdmin} />}
+      </Route>
+      <Route path="/admin/books">
+        {() => <ProtectedAdminRoute component={BookManagement} isAuthenticated={isAuthenticated} isAdmin={isAdmin} />}
+      </Route>
+      <Route path="/admin/classes">
+        {() => <ProtectedAdminRoute component={ClassManagement} isAuthenticated={isAuthenticated} isAdmin={isAdmin} />}
+      </Route>
+      
       <Route component={NotFound} />
     </Switch>
   );
@@ -124,7 +158,7 @@ function App() {
         }}
       >
         <AppLayout>
-          <Router />
+          <Router isAuthenticated={isAuthenticated} isAdmin={isAdmin} />
         </AppLayout>
       </AuthContext.Provider>
       <Toaster />

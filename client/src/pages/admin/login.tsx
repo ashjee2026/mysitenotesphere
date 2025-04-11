@@ -1,50 +1,35 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState, useContext } from "react";
 import { useLocation } from "wouter";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { AuthContext } from "@/App";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-
-const loginSchema = z.object({
-  username: z.string().min(1, "Username is required"),
-  password: z.string().min(1, "Password is required"),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function AdminLogin() {
-  const [_, setLocation] = useLocation();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const auth = useContext(AuthContext);
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-    },
-  });
-
-  const onSubmit = async (data: LoginFormValues) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
+
     try {
-      const response = await apiRequest("POST", "/api/admin/login", data);
-      
-      if (response.ok) {
-        toast({
-          title: "Login Successful",
-          description: "Welcome to the admin dashboard",
-        });
-        setLocation("/admin");
-      }
+      await auth.login(username, password);
+      toast({
+        title: "Login successful",
+        description: "Welcome to the admin panel",
+      });
+      setLocation("/admin");
     } catch (error) {
       toast({
-        title: "Login Failed",
-        description: error instanceof Error ? error.message : "Invalid username or password",
+        title: "Login failed",
+        description: "Invalid username or password",
         variant: "destructive",
       });
     } finally {
@@ -52,109 +37,56 @@ export default function AdminLogin() {
     }
   };
 
+  // If already authenticated and is admin, redirect to admin dashboard
+  if (auth.isAuthenticated && auth.isAdmin) {
+    setLocation("/admin");
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white">
-            <i className="ri-book-open-line text-xl"></i>
-          </div>
-        </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          NoteSphere Admin
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Sign in to manage educational content
-        </p>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                      <Input 
-                        {...field} 
-                        placeholder="admin" 
-                        className="block w-full rounded-md border-gray-300 shadow-sm"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">Admin Login</CardTitle>
+          <CardDescription className="text-center">
+            Enter your credentials to access the admin panel
+          </CardDescription>
+        </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input 
+                id="username" 
+                placeholder="Enter your username" 
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
               />
-
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input 
-                        {...field} 
-                        type="password" 
-                        placeholder="••••••••" 
-                        className="block w-full rounded-md border-gray-300 shadow-sm"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input 
+                id="password" 
+                type="password" 
+                placeholder="Enter your password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
-
-              <Button 
-                type="submit" 
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-700"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <span className="flex items-center">
-                    <i className="ri-loader-4-line animate-spin mr-2"></i>
-                    Signing in...
-                  </span>
-                ) : "Sign in"}
-              </Button>
-            </form>
-          </Form>
-
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
-                  Need help?
-                </span>
-              </div>
             </div>
-
-            <div className="mt-6 text-center">
-              <span className="text-sm text-gray-500">
-                Contact the system administrator
-              </span>
-            </div>
-          </div>
-
-          <div className="mt-6 text-center">
+          </CardContent>
+          <CardFooter>
             <Button 
-              variant="link" 
-              onClick={() => setLocation("/")}
-              className="text-sm text-primary hover:text-primary-600"
+              type="submit" 
+              className="w-full" 
+              disabled={isLoading}
             >
-              <i className="ri-arrow-left-line mr-1"></i>
-              Return to Website
+              {isLoading ? "Logging in..." : "Login"}
             </Button>
-          </div>
-        </div>
-      </div>
+          </CardFooter>
+        </form>
+      </Card>
     </div>
   );
 }
