@@ -44,27 +44,6 @@ export default function ResourceList({ categoryId }: ResourceListProps) {
     return ['jee', 'neet'].includes(categoryId) ? 'secondary2' : 'primary';
   };
 
-  const handleDownload = async (id: number) => {
-    try {
-      const response = await apiRequest('GET', `/api/resources/${id}/download`, undefined);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = id.toString();
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Download failed:', error);
-    }
-  };
-
-  const getButtonVariant = (categoryId: string) => {
-    return ['jee', 'neet'].includes(categoryId) ? 'secondary2' : 'primary';
-  };
-
   return (
     <section className="py-12 bg-slate-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">

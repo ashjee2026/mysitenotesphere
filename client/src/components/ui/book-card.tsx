@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Book } from "@shared/schema";
@@ -17,13 +16,13 @@ export function BookCard({ book, variant = "large", className }: BookCardProps) 
   const { toast } = useToast();
 
   const isLarge = variant === "large";
-  
+
   const handleDownload = async () => {
     try {
       setIsDownloading(true);
       const res = await apiRequest("POST", `/api/books/${book.id}/download`);
       const data = await res.json();
-      
+
       toast({
         title: "Download started",
         description: "Your download should begin shortly."
@@ -95,7 +94,7 @@ export function BookCard({ book, variant = "large", className }: BookCardProps) 
           </div>
           <h3 className="font-medium text-gray-900">{book.title}</h3>
           <p className="text-sm text-gray-500 mt-1">{book.description}</p>
-          
+
           <div className="mt-3 flex items-center justify-between">
             <div className="flex items-center">
               <span className="text-sm text-gray-500 flex items-center">
@@ -152,7 +151,7 @@ export function BookCard({ book, variant = "large", className }: BookCardProps) 
       <div className="p-3 flex-1 flex flex-col">
         <h3 className="font-medium text-sm text-gray-900">{book.title}</h3>
         <p className="text-xs text-gray-500 mt-1 flex-1">{book.description}</p>
-        
+
         <div className="mt-2 flex items-center justify-between">
           <span className="text-xs text-gray-500 flex items-center">
             <i className="fas fa-star text-yellow-400 mr-1"></i> {(book.rating / 10).toFixed(1) || "0.0"}
