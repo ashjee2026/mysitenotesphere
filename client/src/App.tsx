@@ -1,4 +1,5 @@
 import { Switch, Route } from "wouter";
+import { lazy } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -21,7 +22,7 @@ function Router() {
           <Route path="/" component={Home} />
           <Route path="/category/:categoryId" component={Category} />
           <Route path="/auth" component={AuthPage} />
-          <Route path="/about" component={() => import("@/pages/about").then(m => m.default)} />
+          <Route path="/about" component={lazy(() => import("@/pages/about"))} />
           <ProtectedRoute path="/admin" component={AdminPage} adminOnly={true} />
           <Route component={NotFound} />
         </Switch>
