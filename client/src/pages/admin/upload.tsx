@@ -22,6 +22,8 @@ import {
 } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Label } from "@/components/ui/label";
+
 
 // Admin sidebar component
 function AdminSidebar() {
@@ -97,6 +99,9 @@ export default function UploadContent() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("book");
   const [selectedClass, setSelectedClass] = useState<number | string | null>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [uploadMethod, setUploadMethod] = useState<'file' | 'url'>('file');
+  const [resourceUrl, setResourceUrl] = useState('');
 
   // Check if user is authenticated
   const { data: user, isLoading: userLoading, error: userError } = useQuery<User>({
@@ -243,7 +248,10 @@ export default function UploadContent() {
   // Resource upload mutation
   const resourceMutation = useMutation({
     mutationFn: async (data: ResourceFormValues) => {
-      const response = await apiRequest("POST", "/api/resources", data);
+      const response = await apiRequest("POST", "/api/resources", {
+        ...data,
+        fileUrl: uploadMethod === 'file' ? "url_from_uploaded_file" : resourceUrl
+      });
       return response.json();
     },
     onSuccess: () => {
@@ -252,6 +260,8 @@ export default function UploadContent() {
         description: "The resource has been added to the library",
       });
       resourceForm.reset();
+      setUploadMethod('file');
+      setResourceUrl('');
       queryClient.invalidateQueries({ queryKey: ['/api/resources'] });
     },
     onError: (error) => {
@@ -932,6 +942,48 @@ export default function UploadContent() {
                         )}
                       />
 
+                      <div className="space-y-4">
+                        <div>
+                          <Label>Choose upload method</Label>
+                          <Select defaultValue="file" onValueChange={(value) => setUploadMethod(value)}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select upload method" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="file">Upload File</SelectItem>
+                              <SelectItem value="url">Provide URL</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {uploadMethod === 'file' ? (
+                          <div className="space-y-2">
+                            <Input
+                              type="file"
+                              accept=".pdf"
+                              onChange={(e) => resourceForm.setValue('fileUrl', e.target.files?.[0])}
+                              required={uploadMethod === 'file'}
+                            />
+                            <p className="text-sm text-muted-foreground">
+                              Maximum file size: 25MB. Only PDF files are allowed.
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <Input
+                              type="url"
+                              placeholder="Enter resource URL"
+                              value={resourceUrl}
+                              onChange={(e) => setResourceUrl(e.target.value)}
+                              required={uploadMethod === 'url'}
+                            />
+                            <p className="text-sm text-muted-foreground">
+                              Enter a direct URL to the PDF file
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
                       <Button type="submit" disabled={resourceMutation.isPending}>
                         {resourceMutation.isPending ? (
                           <>
@@ -940,7 +992,7 @@ export default function UploadContent() {
                           </>
                         ) : (
                           <>
-                            <i className="ri-add-line mr-2"></i>
+                            <i<i className="ri-add-line mr-2"></i>
                             Add Resource
                           </>
                         )}
