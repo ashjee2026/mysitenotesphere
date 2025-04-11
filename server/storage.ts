@@ -1,321 +1,322 @@
-import { 
-  users, 
-  classes, 
-  subjects, 
-  chapters, 
-  books, 
-  resources, 
-  topics,
-  type User, 
-  type InsertUser,
-  type Class,
-  type InsertClass,
-  type Subject,
-  type InsertSubject,
-  type Chapter,
-  type InsertChapter,
-  type Book,
-  type InsertBook,
-  type Resource,
-  type InsertResource,
-  type Topic,
-  type InsertTopic
-} from "@shared/schema";
+import { Category, ResourceFile, ResourceType } from "../shared/schema";
+import { format } from "date-fns";
 
 export interface IStorage {
-  // User operations
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  
-  // Class operations
-  getAllClasses(): Promise<Class[]>;
-  getClass(id: number): Promise<Class | undefined>;
-  getClassByName(name: string): Promise<Class | undefined>;
-  createClass(cls: InsertClass): Promise<Class>;
-  
-  // Subject operations
-  getAllSubjects(): Promise<Subject[]>;
-  getSubject(id: number): Promise<Subject | undefined>;
-  getSubjectsByClassId(classId: number): Promise<Subject[]>;
-  getSubjectsByClassName(className: string): Promise<Subject[]>;
-  getSubjectByClassAndName(classId: number, name: string): Promise<Subject | undefined>;
-  createSubject(subject: InsertSubject): Promise<Subject>;
-  
-  // Chapter operations
-  getAllChapters(): Promise<Chapter[]>;
-  getChapter(id: number): Promise<Chapter | undefined>;
-  getChaptersBySubjectId(subjectId: number): Promise<Chapter[]>;
-  createChapter(chapter: InsertChapter): Promise<Chapter>;
-  deleteChapter(id: number): Promise<boolean>;
-  
-  // Book operations
-  getAllBooks(): Promise<Book[]>;
-  getBook(id: number): Promise<Book | undefined>;
-  getBooksByClassId(classId: number): Promise<Book[]>;
-  getBooksBySubjectId(subjectId: number): Promise<Book[]>;
-  getBooksByClassAndSubject(classId: number, subjectId: number): Promise<Book[]>;
-  getFeaturedBooks(): Promise<Book[]>;
-  createBook(book: InsertBook): Promise<Book>;
-  deleteBook(id: number): Promise<boolean>;
-  
-  // Resource operations
-  getAllResources(): Promise<Resource[]>;
-  getResource(id: number): Promise<Resource | undefined>;
-  getResourcesByClassId(classId: number): Promise<Resource[]>;
-  getResourcesBySubjectId(subjectId: number): Promise<Resource[]>;
-  getResourcesByType(type: string): Promise<Resource[]>;
-  getResourcesByClassAndSubject(classId: number, subjectId: number): Promise<Resource[]>;
-  createResource(resource: InsertResource): Promise<Resource>;
-  deleteResource(id: number): Promise<boolean>;
-  
-  // Topic operations
-  getTopicsByChapterId(chapterId: number): Promise<Topic[]>;
-  createTopic(topic: InsertTopic): Promise<Topic>;
+  getAllCategories(): Promise<Category[]>;
+  getCategoryById(id: string): Promise<Category | undefined>;
+  getAllResourceTypes(): Promise<ResourceType[]>;
+  getResourceTypeById(id: string): Promise<ResourceType | undefined>;
+  getAllResources(): Promise<ResourceFile[]>;
+  getResourceById(id: number): Promise<ResourceFile | undefined>;
+  getFeaturedResources(): Promise<ResourceFile[]>;
+  getRecentResources(): Promise<ResourceFile[]>;
+  getResourcesByCategory(categoryId: string): Promise<ResourceFile[]>;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private classes: Map<number | string, Class>;
-  private subjects: Map<number, Subject>;
-  private chapters: Map<number, Chapter>;
-  private books: Map<number, Book>;
-  private resources: Map<number, Resource>;
-  private topics: Map<number, Topic>;
-  
-  private userIdCounter: number;
-  private classIdCounter: number;
-  private subjectIdCounter: number;
-  private chapterIdCounter: number;
-  private bookIdCounter: number;
-  private resourceIdCounter: number;
-  private topicIdCounter: number;
+  private categories: Map<string, Category>;
+  private resourceTypes: Map<string, ResourceType>;
+  private resources: Map<number, ResourceFile>;
 
   constructor() {
-    this.users = new Map();
-    this.classes = new Map();
-    this.subjects = new Map();
-    this.chapters = new Map();
-    this.books = new Map();
+    this.categories = new Map();
+    this.resourceTypes = new Map();
     this.resources = new Map();
-    this.topics = new Map();
     
-    this.userIdCounter = 1;
-    this.classIdCounter = 1;
-    this.subjectIdCounter = 1;
-    this.chapterIdCounter = 1;
-    this.bookIdCounter = 1;
-    this.resourceIdCounter = 1;
-    this.topicIdCounter = 1;
+    this.initializeSampleData();
   }
 
-  // User methods
-  async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+  async getAllCategories(): Promise<Category[]> {
+    return Array.from(this.categories.values());
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username
-    );
+  async getCategoryById(id: string): Promise<Category | undefined> {
+    return this.categories.get(id);
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.userIdCounter++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async getAllResourceTypes(): Promise<ResourceType[]> {
+    return Array.from(this.resourceTypes.values());
   }
 
-  // Class methods
-  async getAllClasses(): Promise<Class[]> {
-    return Array.from(this.classes.values())
-      .sort((a, b) => (a.order || 0) - (b.order || 0));
+  async getResourceTypeById(id: string): Promise<ResourceType | undefined> {
+    return this.resourceTypes.get(id);
   }
 
-  async getClass(id: number): Promise<Class | undefined> {
-    return this.classes.get(id);
-  }
-
-  async getClassByName(name: string): Promise<Class | undefined> {
-    return Array.from(this.classes.values()).find(
-      (cls) => cls.name.toLowerCase() === name.toLowerCase()
-    );
-  }
-
-  async createClass(insertClass: InsertClass): Promise<Class> {
-    const id = this.classIdCounter++;
-    const cls: Class = { ...insertClass, id };
-    this.classes.set(id, cls);
-    return cls;
-  }
-
-  // Subject methods
-  async getAllSubjects(): Promise<Subject[]> {
-    return Array.from(this.subjects.values());
-  }
-
-  async getSubject(id: number): Promise<Subject | undefined> {
-    return this.subjects.get(id);
-  }
-
-  async getSubjectsByClassId(classId: number): Promise<Subject[]> {
-    return Array.from(this.subjects.values()).filter(
-      (subject) => subject.classId === classId
-    );
-  }
-
-  async getSubjectsByClassName(className: string): Promise<Subject[]> {
-    const cls = await this.getClassByName(className);
-    if (!cls) return [];
-    return this.getSubjectsByClassId(cls.id as number);
-  }
-
-  async getSubjectByClassAndName(classId: number, name: string): Promise<Subject | undefined> {
-    return Array.from(this.subjects.values()).find(
-      (subject) => subject.classId === classId && subject.name.toLowerCase() === name.toLowerCase()
-    );
-  }
-
-  async createSubject(insertSubject: InsertSubject): Promise<Subject> {
-    const id = this.subjectIdCounter++;
-    const subject: Subject = { ...insertSubject, id };
-    this.subjects.set(id, subject);
-    return subject;
-  }
-
-  // Chapter methods
-  async getAllChapters(): Promise<Chapter[]> {
-    return Array.from(this.chapters.values())
-      .sort((a, b) => a.order - b.order);
-  }
-
-  async getChapter(id: number): Promise<Chapter | undefined> {
-    return this.chapters.get(id);
-  }
-
-  async getChaptersBySubjectId(subjectId: number): Promise<Chapter[]> {
-    return Array.from(this.chapters.values())
-      .filter((chapter) => chapter.subjectId === subjectId)
-      .sort((a, b) => a.order - b.order);
-  }
-
-  async createChapter(insertChapter: InsertChapter): Promise<Chapter> {
-    const id = this.chapterIdCounter++;
-    const chapter: Chapter = { ...insertChapter, id };
-    this.chapters.set(id, chapter);
-    return chapter;
-  }
-
-  async deleteChapter(id: number): Promise<boolean> {
-    return this.chapters.delete(id);
-  }
-
-  // Book methods
-  async getAllBooks(): Promise<Book[]> {
-    return Array.from(this.books.values());
-  }
-
-  async getBook(id: number): Promise<Book | undefined> {
-    return this.books.get(id);
-  }
-
-  async getBooksByClassId(classId: number): Promise<Book[]> {
-    return Array.from(this.books.values()).filter(
-      (book) => book.classId === classId
-    );
-  }
-
-  async getBooksBySubjectId(subjectId: number): Promise<Book[]> {
-    return Array.from(this.books.values()).filter(
-      (book) => book.subjectId === subjectId
-    );
-  }
-
-  async getBooksByClassAndSubject(classId: number, subjectId: number): Promise<Book[]> {
-    return Array.from(this.books.values()).filter(
-      (book) => book.classId === classId && book.subjectId === subjectId
-    );
-  }
-
-  async getFeaturedBooks(): Promise<Book[]> {
-    return Array.from(this.books.values()).filter(
-      (book) => book.featured
-    );
-  }
-
-  async createBook(insertBook: InsertBook): Promise<Book> {
-    const id = this.bookIdCounter++;
-    const book: Book = { ...insertBook, id };
-    this.books.set(id, book);
-    return book;
-  }
-
-  async deleteBook(id: number): Promise<boolean> {
-    return this.books.delete(id);
-  }
-
-  // Resource methods
-  async getAllResources(): Promise<Resource[]> {
+  async getAllResources(): Promise<ResourceFile[]> {
     return Array.from(this.resources.values());
   }
 
-  async getResource(id: number): Promise<Resource | undefined> {
+  async getResourceById(id: number): Promise<ResourceFile | undefined> {
     return this.resources.get(id);
   }
 
-  async getResourcesByClassId(classId: number): Promise<Resource[]> {
-    return Array.from(this.resources.values()).filter(
-      (resource) => resource.classId === classId
-    );
+  async getFeaturedResources(): Promise<ResourceFile[]> {
+    return Array.from(this.resources.values())
+      .filter(resource => resource.isFeatured)
+      .slice(0, 3);
   }
 
-  async getResourcesBySubjectId(subjectId: number): Promise<Resource[]> {
-    return Array.from(this.resources.values()).filter(
-      (resource) => resource.subjectId === subjectId
-    );
+  async getRecentResources(): Promise<ResourceFile[]> {
+    return Array.from(this.resources.values())
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 5);
   }
 
-  async getResourcesByType(type: string): Promise<Resource[]> {
-    return Array.from(this.resources.values()).filter(
-      (resource) => resource.type === type
-    );
+  async getResourcesByCategory(categoryId: string): Promise<ResourceFile[]> {
+    return Array.from(this.resources.values())
+      .filter(resource => resource.categoryId === categoryId);
   }
 
-  async getResourcesByClassAndSubject(classId: number, subjectId: number): Promise<Resource[]> {
-    return Array.from(this.resources.values()).filter(
-      (resource) => resource.classId === classId && resource.subjectId === subjectId
-    );
-  }
+  private initializeSampleData() {
+    // Initialize categories
+    const categories: Category[] = [
+      {
+        id: "class-10",
+        name: "Class 10th",
+        description: "Complete study materials for all subjects of 10th standard."
+      },
+      {
+        id: "class-11",
+        name: "Class 11th",
+        description: "Comprehensive resources for all 11th standard subjects."
+      },
+      {
+        id: "class-12",
+        name: "Class 12th",
+        description: "Complete study materials for board exam preparation."
+      },
+      {
+        id: "jee",
+        name: "JEE",
+        description: "Specialized materials for JEE Main and Advanced preparation."
+      },
+      {
+        id: "neet",
+        name: "NEET",
+        description: "Comprehensive study materials for medical entrance preparation."
+      }
+    ];
 
-  async createResource(insertResource: InsertResource): Promise<Resource> {
-    const id = this.resourceIdCounter++;
-    const resource: Resource = { ...insertResource, id };
-    this.resources.set(id, resource);
-    return resource;
-  }
+    categories.forEach(category => {
+      this.categories.set(category.id, category);
+    });
 
-  async deleteResource(id: number): Promise<boolean> {
-    return this.resources.delete(id);
-  }
+    // Initialize resource types
+    const resourceTypes: ResourceType[] = [
+      {
+        id: "textbooks",
+        name: "Textbooks",
+        description: "Standard textbooks and reference materials for all subjects and classes."
+      },
+      {
+        id: "notes",
+        name: "Notes",
+        description: "Comprehensive handwritten and digital notes covering all important topics."
+      },
+      {
+        id: "question-banks",
+        name: "Question Banks",
+        description: "Previous year papers and practice questions with detailed solutions."
+      },
+      {
+        id: "revision",
+        name: "Revision Materials",
+        description: "Quick revision sheets, formula collections, and summary notes."
+      }
+    ];
 
-  // Topic methods
-  async getTopicsByChapterId(chapterId: number): Promise<Topic[]> {
-    return Array.from(this.topics.values())
-      .filter((topic) => topic.chapterId === chapterId)
-      .sort((a, b) => a.order - b.order);
-  }
+    resourceTypes.forEach(type => {
+      this.resourceTypes.set(type.id, type);
+    });
 
-  async createTopic(insertTopic: InsertTopic): Promise<Topic> {
-    const id = this.topicIdCounter++;
-    const topic: Topic = { ...insertTopic, id };
-    this.topics.set(id, topic);
-    return topic;
+    // Initialize resources
+    const resources: ResourceFile[] = [
+      {
+        id: 1,
+        title: "Physics NCERT Solutions",
+        description: "Complete solutions for NCERT Physics Class 12 with detailed explanations and diagrams.",
+        fileSize: "8.2 MB",
+        fileName: "physics_ncert_solutions_class12.pdf",
+        filePath: "/resources/class-12/physics_ncert_solutions_class12.pdf",
+        categoryId: "class-12",
+        categoryName: "Class 12th",
+        typeId: "textbooks",
+        typeName: "Textbooks",
+        isFeatured: true,
+        createdAt: "2023-06-15",
+        updatedAt: "2023-06-15"
+      },
+      {
+        id: 2,
+        title: "Mathematics Formula Book",
+        description: "Comprehensive collection of all important formulas for JEE Mathematics.",
+        fileSize: "5.7 MB",
+        fileName: "jee_mathematics_formulas.pdf",
+        filePath: "/resources/jee/jee_mathematics_formulas.pdf",
+        categoryId: "jee",
+        categoryName: "JEE",
+        typeId: "revision",
+        typeName: "Revision Materials",
+        isFeatured: true,
+        createdAt: "2023-08-20",
+        updatedAt: "2023-08-20"
+      },
+      {
+        id: 3,
+        title: "Biology Topic-wise MCQs",
+        description: "Topic-wise collection of important multiple choice questions for NEET Biology preparation.",
+        fileSize: "12.3 MB",
+        fileName: "neet_biology_mcqs.pdf",
+        filePath: "/resources/neet/neet_biology_mcqs.pdf",
+        categoryId: "neet",
+        categoryName: "NEET",
+        typeId: "question-banks",
+        typeName: "Question Banks",
+        isFeatured: true,
+        createdAt: "2023-07-10",
+        updatedAt: "2023-07-10"
+      },
+      {
+        id: 4,
+        title: "Chemistry Revision Notes",
+        description: "Comprehensive revision notes for Class 12 Chemistry covering all chapters.",
+        fileSize: "6.5 MB",
+        fileName: "chemistry_revision_notes_class12.pdf",
+        filePath: "/resources/class-12/chemistry_revision_notes_class12.pdf",
+        categoryId: "class-12",
+        categoryName: "Class 12th",
+        typeId: "notes",
+        typeName: "Notes",
+        isFeatured: false,
+        createdAt: "2023-09-15",
+        updatedAt: "2023-09-15"
+      },
+      {
+        id: 5,
+        title: "JEE Physics Sample Papers",
+        description: "Collection of previous year JEE Physics papers with detailed solutions.",
+        fileSize: "9.8 MB",
+        fileName: "jee_physics_sample_papers.pdf",
+        filePath: "/resources/jee/jee_physics_sample_papers.pdf",
+        categoryId: "jee",
+        categoryName: "JEE",
+        typeId: "question-banks",
+        typeName: "Question Banks",
+        isFeatured: false,
+        createdAt: "2023-09-12",
+        updatedAt: "2023-09-12"
+      },
+      {
+        id: 6,
+        title: "Human Physiology Diagrams",
+        description: "Detailed diagrams of human physiology systems for NEET preparation.",
+        fileSize: "7.3 MB",
+        fileName: "neet_human_physiology_diagrams.pdf",
+        filePath: "/resources/neet/neet_human_physiology_diagrams.pdf",
+        categoryId: "neet",
+        categoryName: "NEET",
+        typeId: "revision",
+        typeName: "Revision Materials",
+        isFeatured: false,
+        createdAt: "2023-09-10",
+        updatedAt: "2023-09-10"
+      },
+      {
+        id: 7,
+        title: "Mathematics NCERT Solutions",
+        description: "Complete solutions for NCERT Mathematics Class 10 with step-by-step explanations.",
+        fileSize: "4.6 MB",
+        fileName: "mathematics_ncert_solutions_class10.pdf",
+        filePath: "/resources/class-10/mathematics_ncert_solutions_class10.pdf",
+        categoryId: "class-10",
+        categoryName: "Class 10th",
+        typeId: "textbooks",
+        typeName: "Textbooks",
+        isFeatured: false,
+        createdAt: "2023-09-08",
+        updatedAt: "2023-09-08"
+      },
+      {
+        id: 8,
+        title: "English Literature Notes",
+        description: "Comprehensive notes on Class 11 English Literature with summaries and analysis.",
+        fileSize: "3.9 MB",
+        fileName: "english_literature_notes_class11.pdf",
+        filePath: "/resources/class-11/english_literature_notes_class11.pdf",
+        categoryId: "class-11",
+        categoryName: "Class 11th",
+        typeId: "notes",
+        typeName: "Notes",
+        isFeatured: false,
+        createdAt: "2023-09-05",
+        updatedAt: "2023-09-05"
+      },
+      {
+        id: 9,
+        title: "Science Chapter Notes Class 10",
+        description: "Detailed chapter notes for Class 10 Science covering Physics, Chemistry and Biology portions.",
+        fileSize: "5.5 MB",
+        fileName: "science_notes_class10.pdf",
+        filePath: "/resources/class-10/science_notes_class10.pdf",
+        categoryId: "class-10",
+        categoryName: "Class 10th",
+        typeId: "notes",
+        typeName: "Notes",
+        isFeatured: false,
+        createdAt: "2023-08-28",
+        updatedAt: "2023-08-28"
+      },
+      {
+        id: 10,
+        title: "Physics Numerical Problems Class 11",
+        description: "Collection of important numerical problems for Class 11 Physics with solutions.",
+        fileSize: "7.1 MB",
+        fileName: "physics_numericals_class11.pdf",
+        filePath: "/resources/class-11/physics_numericals_class11.pdf",
+        categoryId: "class-11",
+        categoryName: "Class 11th",
+        typeId: "question-banks",
+        typeName: "Question Banks",
+        isFeatured: false,
+        createdAt: "2023-08-15",
+        updatedAt: "2023-08-15"
+      },
+      {
+        id: 11,
+        title: "JEE Chemistry Quick Revision",
+        description: "Quick revision notes for JEE Chemistry with important reactions and concepts.",
+        fileSize: "6.3 MB",
+        fileName: "jee_chemistry_revision.pdf",
+        filePath: "/resources/jee/jee_chemistry_revision.pdf",
+        categoryId: "jee",
+        categoryName: "JEE",
+        typeId: "revision",
+        typeName: "Revision Materials",
+        isFeatured: false,
+        createdAt: "2023-07-25",
+        updatedAt: "2023-07-25"
+      },
+      {
+        id: 12,
+        title: "NEET Botany Important Questions",
+        description: "Important questions for NEET Botany with detailed answers and explanations.",
+        fileSize: "8.9 MB",
+        fileName: "neet_botany_questions.pdf",
+        filePath: "/resources/neet/neet_botany_questions.pdf",
+        categoryId: "neet",
+        categoryName: "NEET",
+        typeId: "question-banks",
+        typeName: "Question Banks",
+        isFeatured: false,
+        createdAt: "2023-07-18",
+        updatedAt: "2023-07-18"
+      }
+    ];
+
+    resources.forEach(resource => {
+      this.resources.set(resource.id, resource);
+    });
   }
 }
 
-// Create and export a singleton instance
-import { DatabaseStorage } from './database-storage';
-
-// Use DatabaseStorage for persistent data storage
-export const storage = new DatabaseStorage();
+export const storage = new MemStorage();

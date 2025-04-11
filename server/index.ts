@@ -1,24 +1,10 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import session from "express-session";
-import { storage } from "./storage";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
-// Configure session middleware
-app.use(session({
-  secret: 'notesphere-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { 
-    secure: false, // set to true in production with HTTPS
-    maxAge: 1000 * 60 * 60 * 24 // 24 hours
-  },
-  store: storage.sessionStore
-}));
 
 app.use((req, res, next) => {
   const start = Date.now();
