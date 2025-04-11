@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { Redirect } from "wouter";
+import { Redirect, useLocation } from "wouter";
 import { 
   Card, 
   CardContent, 
@@ -13,45 +13,84 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, LogIn, UserPlus } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, LogIn, UserPlus, AlertCircle } from "lucide-react";
 
 export default function AuthPage() {
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
+  const [location] = useLocation();
   
   // Login state
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [showAdminHint, setShowAdminHint] = useState(false);
   
   // Register state
   const [registerUsername, setRegisterUsername] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [registerError, setRegisterError] = useState("");
+  
+  // Clear errors when switching tabs
+  useEffect(() => {
+    setLoginError("");
+    setRegisterError("");
+  }, [location]);
   
   // Handle login form submission
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    loginMutation.mutate({
-      username: loginUsername,
-      password: loginPassword
-    });
+    setLoginError("");
+    
+    if (!loginUsername || !loginPassword) {
+      setLoginError("Username and password are required");
+      return;
+    }
+    
+    try {
+      loginMutation.mutate({
+        username: loginUsername,
+        password: loginPassword
+      });
+    } catch (error) {
+      setLoginError("Failed to login. Please try again.");
+    }
   };
   
   // Handle register form submission
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setRegisterError("");
     
-    if (registerPassword !== registerConfirmPassword) {
-      alert("Passwords do not match");
+    if (!registerUsername || !registerPassword || !registerConfirmPassword) {
+      setRegisterError("All fields are required");
       return;
     }
     
-    registerMutation.mutate({
-      username: registerUsername,
-      password: registerPassword,
-      isAdmin: false,
-      createdAt: new Date().toISOString()
-    });
+    if (registerPassword !== registerConfirmPassword) {
+      setRegisterError("Passwords do not match");
+      return;
+    }
+    
+    try {
+      registerMutation.mutate({
+        username: registerUsername,
+        password: registerPassword,
+        isAdmin: false,
+        createdAt: new Date().toISOString()
+      });
+    } catch (error) {
+      setRegisterError("Failed to register. Please try again.");
+    }
   };
+  
+  // Display admin hint on 3 failed attempts with username "admin"
+  useEffect(() => {
+    if (loginMutation.isError && loginUsername === "admin") {
+      setShowAdminHint(true);
+    }
+  }, [loginMutation.isError, loginUsername]);
   
   // Redirect if already logged in
   if (user) {
@@ -78,6 +117,32 @@ export default function AuthPage() {
               </CardHeader>
               <form onSubmit={handleLogin}>
                 <CardContent className="space-y-4">
+                  {loginMutation.isError && (
+                    <Alert variant="destructive" className="mb-4">
+                      <AlertCircle className="h-4 w-4 mr-2" />
+                      <AlertDescription>
+                        Invalid username or password
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  {loginError && (
+                    <Alert variant="destructive" className="mb-4">
+                      <AlertCircle className="h-4 w-4 mr-2" />
+                      <AlertDescription>
+                        {loginError}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  {showAdminHint && (
+                    <Alert className="mb-4 bg-blue-50 text-blue-800 border-blue-200">
+                      <AlertDescription>
+                        <strong>Hint:</strong> Admin username is "admin" and password is "admin123"
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
                   <div className="space-y-2">
                     <Label htmlFor="login-username">Username</Label>
                     <Input 
@@ -131,6 +196,24 @@ export default function AuthPage() {
               </CardHeader>
               <form onSubmit={handleRegister}>
                 <CardContent className="space-y-4">
+                  {registerMutation.isError && (
+                    <Alert variant="destructive" className="mb-4">
+                      <AlertCircle className="h-4 w-4 mr-2" />
+                      <AlertDescription>
+                        Registration failed. Username may already be taken.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  {registerError && (
+                    <Alert variant="destructive" className="mb-4">
+                      <AlertCircle className="h-4 w-4 mr-2" />
+                      <AlertDescription>
+                        {registerError}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
                   <div className="space-y-2">
                     <Label htmlFor="register-username">Username</Label>
                     <Input 
@@ -187,7 +270,7 @@ export default function AuthPage() {
       </div>
       
       {/* Right side - Hero section */}
-      <div className="hidden lg:flex flex-1 bg-cover bg-center" style={{ backgroundImage: 'url("@assets/beautiful-anime-landscape-cartoon-scene.jpg")' }}>
+      <div className="hidden lg:flex flex-1 bg-cover bg-center" style={{ backgroundImage: 'url("/attached_assets/beautiful-anime-landscape-cartoon-scene.jpg")' }}>
         <div className="flex flex-col justify-center p-12 bg-gradient-to-r from-background/90 to-background/30 w-full h-full">
           <div className="max-w-md">
             <h1 className="text-4xl font-bold mb-4">NoteSphere</h1>
