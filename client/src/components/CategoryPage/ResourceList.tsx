@@ -44,6 +44,27 @@ export default function ResourceList({ categoryId }: ResourceListProps) {
     return ['jee', 'neet'].includes(categoryId) ? 'secondary2' : 'primary';
   };
 
+  const handleDownload = async (id: number) => {
+    try {
+      const response = await apiRequest('GET', `/api/resources/${id}/download`, undefined);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = id.toString();
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Download failed:', error);
+    }
+  };
+
+  const getButtonVariant = (categoryId: string) => {
+    return ['jee', 'neet'].includes(categoryId) ? 'secondary2' : 'primary';
+  };
+
   return (
     <section className="py-12 bg-slate-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -97,12 +118,15 @@ export default function ResourceList({ categoryId }: ResourceListProps) {
                   <p className="text-slate-600 text-sm mb-6">{resource.description}</p>
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-slate-500">Added: {resource.createdAt}</span>
-                    <Button
-                      variant={getButtonVariant(categoryId)}
-                      onClick={() => handleDownload(resource.id)}
-                    >
-                      <i className="ri-download-line mr-1 download-icon"></i> Download
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant={getButtonVariant(categoryId)}
+                        onClick={() => handleDownload(resource.id)}
+                        className="inline-flex items-center"
+                      >
+                        <i className="ri-download-line mr-1"></i> Download
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
