@@ -5,11 +5,6 @@ import { Card, CardContent } from "@/components/ui/card";
 export default function AboutPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <div className="mb-10 text-center">
-        <h1 className="text-4xl font-bold tracking-tight mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">About NoteSphere</h1>
-        <p className="text-lg text-gray-600 mb-6">Your trusted platform for educational resources</p>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
         <div>
           <h2 className="text-2xl font-bold mb-4">Our Mission</h2>
@@ -88,11 +83,6 @@ export default function AboutPage() {
         <Link to="/">
           <Button variant="outline" className="mr-4">Back to Home</Button>
         </Link>
-        <Button asChild>
-          <a href="https://t.me/supertoppers" target="_blank" rel="noopener noreferrer">
-            Contact Us
-          </a>
-        </Button>
       </div>
     </div>
   );
