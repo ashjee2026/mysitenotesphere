@@ -812,44 +812,12 @@ async function setupInitialData() {
               subjectId: physics11.id,
               classId: class11.id,
               featured: true,
-              rating: 5,
             }),
           ];
 
           await Promise.all(booksPromises);
-
-          // Add sample chapters
-          await storage.createChapter({
-            subjectId: physics11.id,
-            name: "Chapter 1: Physical World",
-            description: "Introduction to physics and its applications",
-            lessons: 4,
-            practices: 2,
-            status: "completed",
-            order: 1,
-          });
-
-          await storage.createChapter({
-            subjectId: physics11.id,
-            name: "Chapter 2: Units and Measurements",
-            description: "Understanding the importance of measurements in physics",
-            lessons: 6,
-            practices: 3,
-            status: "completed",
-            order: 2,
-          });
-
-          await storage.createChapter({
-            subjectId: physics11.id,
-            name: "Chapter 3: Motion in a Straight Line",
-            description: "Concepts of kinematics in one dimension",
-            lessons: 5,
-            practices: 4,
-            status: "in-progress",
-            order: 3,
-          });
-
-          // We only provide books, no other resources
+          
+          // Only books - no chapters, lessons, or other resources
         }
       }
     }
