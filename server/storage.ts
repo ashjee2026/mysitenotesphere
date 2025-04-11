@@ -264,7 +264,8 @@ export class MemStorage implements IStorage {
         typeName: "Question Banks",
         isFeatured: true,
         createdAt: "2023-07-10",
-        updatedAt: "2023-07-10"
+        updatedAt: "2023-07-10",
+        uploadedBy: 0
       },
       {
         id: 4,
@@ -279,7 +280,8 @@ export class MemStorage implements IStorage {
         typeName: "Notes",
         isFeatured: false,
         createdAt: "2023-09-15",
-        updatedAt: "2023-09-15"
+        updatedAt: "2023-09-15",
+        uploadedBy: 0
       },
       {
         id: 5,
@@ -294,7 +296,8 @@ export class MemStorage implements IStorage {
         typeName: "Question Banks",
         isFeatured: false,
         createdAt: "2023-09-12",
-        updatedAt: "2023-09-12"
+        updatedAt: "2023-09-12",
+        uploadedBy: 0
       },
       {
         id: 6,
@@ -309,7 +312,8 @@ export class MemStorage implements IStorage {
         typeName: "Revision Materials",
         isFeatured: false,
         createdAt: "2023-09-10",
-        updatedAt: "2023-09-10"
+        updatedAt: "2023-09-10",
+        uploadedBy: 0
       },
       {
         id: 7,
@@ -324,7 +328,8 @@ export class MemStorage implements IStorage {
         typeName: "Textbooks",
         isFeatured: false,
         createdAt: "2023-09-08",
-        updatedAt: "2023-09-08"
+        updatedAt: "2023-09-08",
+        uploadedBy: 0
       },
       {
         id: 8,
@@ -339,7 +344,8 @@ export class MemStorage implements IStorage {
         typeName: "Notes",
         isFeatured: false,
         createdAt: "2023-09-05",
-        updatedAt: "2023-09-05"
+        updatedAt: "2023-09-05",
+        uploadedBy: 0
       },
       {
         id: 9,
@@ -354,7 +360,8 @@ export class MemStorage implements IStorage {
         typeName: "Notes",
         isFeatured: false,
         createdAt: "2023-08-28",
-        updatedAt: "2023-08-28"
+        updatedAt: "2023-08-28",
+        uploadedBy: 0
       },
       {
         id: 10,
@@ -369,7 +376,8 @@ export class MemStorage implements IStorage {
         typeName: "Question Banks",
         isFeatured: false,
         createdAt: "2023-08-15",
-        updatedAt: "2023-08-15"
+        updatedAt: "2023-08-15",
+        uploadedBy: 0
       },
       {
         id: 11,
@@ -384,7 +392,8 @@ export class MemStorage implements IStorage {
         typeName: "Revision Materials",
         isFeatured: false,
         createdAt: "2023-07-25",
-        updatedAt: "2023-07-25"
+        updatedAt: "2023-07-25",
+        uploadedBy: 0
       },
       {
         id: 12,
@@ -399,7 +408,8 @@ export class MemStorage implements IStorage {
         typeName: "Question Banks",
         isFeatured: false,
         createdAt: "2023-07-18",
-        updatedAt: "2023-07-18"
+        updatedAt: "2023-07-18",
+        uploadedBy: 0
       }
     ];
 
