@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export default function HeroSection() {
   return (
-    <section className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white">
+    <section className="bg-gradient-to-r from-gradient-start to-gradient-end text-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">NoteSphere - Unlock Learning</h1>

@@ -11,6 +11,8 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
+        'gradient-start': '#00008B', // Dark blue
+        'gradient-end': '#00FFFF',   // Aqua
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
