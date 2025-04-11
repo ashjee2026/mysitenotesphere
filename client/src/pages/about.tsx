@@ -5,49 +5,67 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gradient-start to-gradient-end">
-      <div className="container mx-auto px-4 py-12 max-w-5xl text-white">
+    <div className="min-h-screen bg-white">
+      <div className="container mx-auto px-4 py-12 max-w-5xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
           <div>
-            <h2 className="text-3xl font-bold mb-4">Our Mission</h2>
-            <p className="mb-4">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h2>
+            <p className="text-gray-600 mb-4">
               NoteSphere aims to make quality educational resources accessible to all students, regardless of their financial background. 
               We believe that education is a fundamental right, and every student deserves access to the best learning materials available.
             </p>
-            <p className="mb-4">
+            <p className="text-gray-600">
               Our platform provides carefully curated resources for various educational levels, from class 10th to 12th, as well as 
               specialized materials for competitive exams like JEE and NEET.
             </p>
           </div>
           <div>
-            <h2 className="text-3xl font-bold mb-4">What We Offer</h2>
-            <ul className="list-disc list-inside space-y-3">
-              <li>Comprehensive textbooks and reference materials</li>
-              <li>Subject-wise organized content</li>
-              <li>Study materials for boards and competitive exams</li>
-              <li>Resources from trusted educational sources</li>
-              <li>Regular updates with the latest materials</li>
-              <li>Simple and intuitive user interface</li>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">What We Offer</h2>
+            <ul className="space-y-3 text-gray-600">
+              <li className="flex items-center">
+                <span className="mr-2">•</span>
+                Comprehensive textbooks and reference materials
+              </li>
+              <li className="flex items-center">
+                <span className="mr-2">•</span>
+                Subject-wise organized content
+              </li>
+              <li className="flex items-center">
+                <span className="mr-2">•</span>
+                Study materials for boards and competitive exams
+              </li>
+              <li className="flex items-center">
+                <span className="mr-2">•</span>
+                Resources from trusted educational sources
+              </li>
+              <li className="flex items-center">
+                <span className="mr-2">•</span>
+                Regular updates with the latest materials
+              </li>
+              <li className="flex items-center">
+                <span className="mr-2">•</span>
+                Simple and intuitive user interface
+              </li>
             </ul>
           </div>
         </div>
 
         <div className="mb-12">
-          <h2 className="text-3xl font-bold mb-6">About SuperToppers</h2>
-          <Card className="bg-white/10 backdrop-blur-sm border-none">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">About SuperToppers</h2>
+          <Card className="bg-gray-50 border-gray-200">
             <CardContent className="p-6">
-              <p className="mb-4">
+              <p className="text-gray-600 mb-4">
                 NoteSphere is maintained by SuperToppers, a community dedicated to helping students achieve academic excellence. 
                 Our team consists of passionate educators and top-performing students who understand the challenges faced by 
                 students in their academic journey.
               </p>
-              <p className="mb-6">
+              <p className="text-gray-600 mb-6">
                 Join our Telegram community to get instant updates, access additional resources, and connect with like-minded students.
               </p>
               <div className="flex justify-center">
-                <Button asChild variant="hero">
+                <Button asChild className="bg-[#0088cc] hover:bg-[#0088cc]/90">
                   <a href="https://t.me/supertoppers" target="_blank" rel="noopener noreferrer">
-                    <i className="ri-telegram-fill mr-2"></i> Join our Telegram Channel
+                    Join our Telegram Channel
                   </a>
                 </Button>
               </div>
@@ -55,31 +73,21 @@ export default function AboutPage() {
           </Card>
         </div>
 
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-6">DMCA Disclaimer</h2>
-          <Card className="bg-white/10 backdrop-blur-sm border-none">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">DMCA Disclaimer</h2>
+          <Card className="bg-gray-50 border-gray-200">
             <CardContent className="p-6">
-              <p className="mb-4">
-                SuperToppers (@supertoppers) respects the intellectual property rights of others and expects its users to do the same.
+              <p className="text-gray-600 mb-4">
+                SuperToppers (@supertoppers) respects the intellectual property rights of others and expects its users to do the same. 
                 In accordance with the Digital Millennium Copyright Act (DMCA), we will respond expeditiously to claims of copyright 
                 infringement committed using our service.
               </p>
-              <p className="mb-4">
-                If you are a copyright owner, or are authorized to act on behalf of one, please reach us at:
-                <span className="font-semibold"> dmca@supertoppers.com</span>
-              </p>
-              <p className="mb-4">
-                You can also reach us on our Telegram channel at <a className="text-blue-300 hover:underline" href="https://t.me/supertoppers" 
-                target="_blank" rel="noopener noreferrer">https://t.me/supertoppers</a>
+              <p className="text-gray-600 mb-4">
+                If you are a copyright owner, or are authorized to act on behalf of one, please submit your claim via email to{' '}
+                <span className="font-semibold">dmca@supertoppers.com</span>.
               </p>
             </CardContent>
           </Card>
-        </div>
-
-        <div className="text-center">
-          <Link to="/">
-            <Button variant="hero">Back to Home</Button>
-          </Link>
         </div>
       </div>
     </div>
