@@ -801,21 +801,18 @@ async function setupInitialData() {
               subjectId: physics11.id,
               classId: class11.id,
               featured: true,
-              downloads: 4200,
-              type: "book",
             }),
             storage.createBook({
               title: "Concepts of Physics",
               author: "HC Verma - Volume 1",
               description: "A comprehensive book covering fundamental physics concepts",
               coverImage: "https://images.unsplash.com/photo-1614332287897-cdc485fa562d?ixlib=rb-4.0.3&auto=format&fit=crop",
-              fileUrl: "",
+              fileUrl: "https://example.com/physics-hcverma.pdf",
+              format: "PDF",
               subjectId: physics11.id,
               classId: class11.id,
               featured: true,
-              rating: "4.9",
-              downloads: 10500,
-              type: "book",
+              rating: 5,
             }),
           ];
 
@@ -852,39 +849,7 @@ async function setupInitialData() {
             order: 3,
           });
 
-          // Add sample resources
-          await storage.createResource({
-            title: "Video Lectures",
-            description: "Comprehensive video lectures for Class 11 Physics",
-            type: "video",
-            icon: "youtube-line",
-            count: 42,
-            metadata: "42 videos • 5 playlists",
-            subjectId: physics11.id,
-            classId: class11.id,
-          });
-
-          await storage.createResource({
-            title: "Previous Year Papers",
-            description: "Collection of past examination papers",
-            type: "paper",
-            icon: "file-paper-2-line",
-            count: 20,
-            metadata: "10 years • 20 papers",
-            subjectId: physics11.id,
-            classId: class11.id,
-          });
-
-          await storage.createResource({
-            title: "Virtual Lab Experiments",
-            description: "Interactive virtual physics lab experiments",
-            type: "experiment",
-            icon: "flask-line",
-            count: 15,
-            metadata: "15 simulations • Interactive",
-            subjectId: physics11.id,
-            classId: class11.id,
-          });
+          // We only provide books, no other resources
         }
       }
     }
