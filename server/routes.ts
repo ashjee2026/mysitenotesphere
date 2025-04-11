@@ -155,6 +155,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete resource endpoint
+  app.delete("/api/admin/resources/:id", isAdmin, async (req, res) => {
+    try {
+      const resourceId = parseInt(req.params.id);
+      const resource = await storage.getResourceById(resourceId);
+      
+      if (!resource) {
+        return res.status(404).json({ message: "Resource not found" });
+      }
+
+      // Delete file from uploads directory
+      const filePath = path.join(process.cwd(), 'uploads', resource.fileName);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+
+      // Delete resource from storage
+      await storage.deleteResource(resourceId);
+      
+      res.json({ message: "Resource deleted successfully" });
+    } catch (error) {
+      console.error('Delete error:', error);
+      res.status(500).json({ message: "Failed to delete resource" });
+    }
+  });
+
   app.get("/api/resources/:id/download", async (req, res) => {
     try {
       const resourceId = parseInt(req.params.id);

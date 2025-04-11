@@ -8,20 +8,20 @@ const MemoryStore = createMemoryStore(session);
 export interface IStorage {
   // Session store
   sessionStore: session.Store;
-  
+
   // User methods
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   // Resource categories
   getAllCategories(): Promise<Category[]>;
   getCategoryById(id: string): Promise<Category | undefined>;
-  
+
   // Resource types
   getAllResourceTypes(): Promise<ResourceType[]>;
   getResourceTypeById(id: string): Promise<ResourceType | undefined>;
-  
+
   // Resources
   getAllResources(): Promise<ResourceFile[]>;
   getResourceById(id: number): Promise<ResourceFile | undefined>;
@@ -29,6 +29,7 @@ export interface IStorage {
   getRecentResources(): Promise<ResourceFile[]>;
   getResourcesByCategory(categoryId: string): Promise<ResourceFile[]>;
   createResource(resource: InsertResourceFile): Promise<ResourceFile>;
+  deleteResource(id: number): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -48,7 +49,7 @@ export class MemStorage implements IStorage {
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000 // prune expired entries every 24h
     });
-    
+
     this.initializeSampleData();
   }
 
@@ -122,7 +123,7 @@ export class MemStorage implements IStorage {
   async createResource(resource: InsertResourceFile): Promise<ResourceFile> {
     const id = this.nextResourceId++;
     const now = new Date().toISOString();
-    
+
     const newResource: ResourceFile = {
       id,
       title: resource.title,
@@ -139,9 +140,13 @@ export class MemStorage implements IStorage {
       createdAt: now,
       updatedAt: now
     };
-    
+
     this.resources.set(id, newResource);
     return newResource;
+  }
+
+  async deleteResource(id: number): Promise<void> {
+    this.resources.delete(id);
   }
 
   private initializeSampleData() {

@@ -162,10 +162,32 @@ export default function ContentManagement() {
     setShowDeleteDialog(true);
   };
 
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return apiRequest("DELETE", `/api/admin/resources/${id}`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Resource deleted successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: [`/api/${activeTab}`] });
+      setShowDeleteDialog(false);
+      setItemToDelete(null);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete resource",
+        variant: "destructive",
+      });
+    }
+  });
+
   // Confirm deletion
   const confirmDelete = () => {
     if (itemToDelete !== null) {
-      deleteItem(itemToDelete);
+      deleteMutation.mutate(itemToDelete);
     }
   };
 
