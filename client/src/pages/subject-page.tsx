@@ -1,5 +1,6 @@
 import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { BookCard } from "@/components/ui/book-card";
 import { BookTable } from "@/components/book-table";
 import { Button } from "@/components/ui/button";
@@ -24,8 +25,8 @@ export default function SubjectPage() {
   });
   
   // Filter books by topic
-  const [activeTab, setActiveTab] = React.useState("books");
-  const [activeFilter, setActiveFilter] = React.useState("all");
+  const [activeTab, setActiveTab] = useState("books");
+  const [activeFilter, setActiveFilter] = useState("all");
   
   const getFilteredBooks = () => {
     if (!books) return [];
@@ -79,11 +80,11 @@ export default function SubjectPage() {
       <div className="mb-6">
         <div className="flex items-center text-sm text-gray-500">
           <Link href="/">
-            <a className="hover:text-primary">Home</a>
+            <span className="hover:text-primary cursor-pointer">Home</span>
           </Link>
           <i className="fas fa-chevron-right mx-2 text-xs"></i>
           <Link href={`/class/${subject.classId}`}>
-            <a className="hover:text-primary">{getClassName()}</a>
+            <span className="hover:text-primary cursor-pointer">{getClassName()}</span>
           </Link>
           <i className="fas fa-chevron-right mx-2 text-xs"></i>
           <span className="text-gray-900 font-medium">{subject.name}</span>

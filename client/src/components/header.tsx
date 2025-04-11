@@ -75,30 +75,30 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
             <i className="fas fa-bars text-gray-700"></i>
           </button>
           <Link href="/">
-            <a className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
               <div className="bg-primary text-white p-1 rounded-md">
                 <i className="fas fa-book-open"></i>
               </div>
               <span className="font-bold text-xl text-primary">NoteSphere</span>
-            </a>
+            </div>
           </Link>
           
           <nav className="hidden md:flex space-x-4 ml-4">
             <Link href="/">
-              <a className={`text-gray-700 hover:text-primary px-2 py-1 rounded-md ${location === '/' ? 'font-medium text-primary' : ''}`}>
+              <span className={`text-gray-700 hover:text-primary px-2 py-1 rounded-md cursor-pointer ${location === '/' ? 'font-medium text-primary' : ''}`}>
                 Home
-              </a>
+              </span>
             </Link>
             <Link href="/about">
-              <a className={`text-gray-700 hover:text-primary px-2 py-1 rounded-md ${location === '/about' ? 'font-medium text-primary' : ''}`}>
+              <span className={`text-gray-700 hover:text-primary px-2 py-1 rounded-md cursor-pointer ${location === '/about' ? 'font-medium text-primary' : ''}`}>
                 About
-              </a>
+              </span>
             </Link>
             {isAdmin && (
               <Link href="/admin">
-                <a className={`text-gray-700 hover:text-primary px-2 py-1 rounded-md ${location.startsWith('/admin') ? 'font-medium text-primary' : ''}`}>
+                <span className={`text-gray-700 hover:text-primary px-2 py-1 rounded-md cursor-pointer ${location.startsWith('/admin') ? 'font-medium text-primary' : ''}`}>
                   Admin
-                </a>
+                </span>
               </Link>
             )}
           </nav>
