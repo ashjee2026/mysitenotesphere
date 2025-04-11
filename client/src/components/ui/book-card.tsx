@@ -29,13 +29,8 @@ export function BookCard({ book, variant = "large", className }: BookCardProps) 
         description: "Your download should begin shortly."
       });
 
-      // Create a temporary link to trigger download
-      const link = document.createElement('a');
-      link.href = data.fileUrl;
-      link.download = book.title;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Trigger file download through browser
+      window.location.href = `/api/resources/${book.id}/download`;
     } catch (error) {
       toast({
         title: "Download failed",

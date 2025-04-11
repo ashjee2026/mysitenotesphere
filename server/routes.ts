@@ -164,40 +164,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Resource not found" });
       }
 
-      // For this demo, instead of serving a real file (since we don't have one),
-      // we'll create a simple text file with the resource info
-      const content = `
-        NoteSphere Resource
-        -----------------
-        Title: ${resource.title}
-        Description: ${resource.description}
-        Category: ${resource.categoryName}
-        Type: ${resource.typeName}
-        
-        This is a sample PDF content for demonstration purposes.
-        In a real application, this would be the actual PDF file content.
-      `;
-      
-      // Create temp dir if it doesn't exist
-      const tempDir = path.join(import.meta.dirname, "temp");
-      if (!fs.existsSync(tempDir)) {
-        fs.mkdirSync(tempDir);
+      // Check if file exists in uploads directory
+      const filePath = path.join(process.cwd(), 'uploads', resource.fileName);
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ message: "File not found" });
       }
-      
-      // Create a temporary file to serve
-      const tempFilePath = path.join(tempDir, `${resource.fileName}`);
-      fs.writeFileSync(tempFilePath, content);
-      
-      res.download(tempFilePath, resource.fileName, (err) => {
-        // Delete the temp file after sending
-        if (fs.existsSync(tempFilePath)) {
-          fs.unlinkSync(tempFilePath);
-        }
+
+      res.download(filePath, resource.fileName, (err) => {
         if (err) {
+          console.error('Download error:', err);
           res.status(500).json({ message: "Download failed" });
         }
       });
+
     } catch (error) {
+      console.error('Download error:', error);
       res.status(500).json({ message: "Failed to download resource" });
     }
   });
