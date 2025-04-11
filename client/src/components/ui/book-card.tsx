@@ -107,7 +107,7 @@ export function BookCard({ book, variant = "large", className }: BookCardProps) 
             </div>
             <Button 
               variant="default"
-              className="text-black bg-white hover:bg-gray-100 border border-gray-200"
+              className="text-white bg-black hover:bg-black/90 shadow-sm"
               onClick={handleDownload}
               disabled={isDownloading}
             >
@@ -159,7 +159,7 @@ export function BookCard({ book, variant = "large", className }: BookCardProps) 
           <Button 
             variant="default" 
             size="sm"
-            className="text-white bg-primary hover:bg-primary/90"
+            className="text-white bg-black hover:bg-black/90 shadow-sm"
             onClick={handleDownload}
             disabled={isDownloading}
           >

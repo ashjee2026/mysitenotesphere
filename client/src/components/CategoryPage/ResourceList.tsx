@@ -101,7 +101,7 @@ export default function ResourceList({ categoryId }: ResourceListProps) {
                       <Button
                         variant={getButtonVariant(categoryId)}
                         onClick={() => handleDownload(resource.id)}
-                        className="inline-flex items-center"
+                        className="inline-flex items-center bg-black text-white hover:bg-black/90 shadow-sm"
                       >
                         <i className="ri-download-line mr-1"></i> Download
                       </Button>

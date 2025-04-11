@@ -84,7 +84,7 @@ export default function FeaturedResources() {
                     <span className="text-xs text-slate-500">Updated: {resource.updatedAt}</span>
                     <Button
                       variant={getButtonVariant(resource.categoryId)}
-                      className="inline-flex items-center text-sm"
+                      className="inline-flex items-center text-sm bg-black text-white hover:bg-black/90 shadow-sm"
                       onClick={() => handleDownload(resource.id)}
                     >
                       <i className="ri-download-line mr-1 download-icon"></i> Download
