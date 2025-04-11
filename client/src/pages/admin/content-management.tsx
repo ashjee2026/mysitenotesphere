@@ -127,6 +127,9 @@ export default function ContentManagement() {
     ],
   });
 
+  // Add select state for batch operations
+  const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  
   // Delete mutation
   const { mutate: deleteItem, isPending: isDeleting } = useMutation({
     mutationFn: async (id: number) => {
@@ -212,12 +215,19 @@ export default function ContentManagement() {
                 <TableCell>{book.downloads}</TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => setLocation(`/admin/edit/book/${book.id}`)}>
-                      <i className="ri-edit-line mr-1"></i> Edit
-                    </Button>
-                    <Button variant="destructive" size="sm" onClick={() => handleDeleteClick(book.id, "book")}>
-                      <i className="ri-delete-bin-line mr-1"></i> Delete
-                    </Button>
+                    <div className="flex space-x-2">
+                      <Button variant="outline" size="sm" onClick={() => setLocation(`/admin/edit/book/${book.id}`)}>
+                        <i className="ri-edit-line mr-1"></i> Edit
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        onClick={() => handleDeleteClick(book.id, "book")}
+                        className="bg-red-600 hover:bg-red-700 text-white"
+                      >
+                        <i className="ri-delete-bin-line mr-1"></i> Remove
+                      </Button>
+                    </div>
                   </div>
                 </TableCell>
               </TableRow>
@@ -354,6 +364,20 @@ export default function ContentManagement() {
         <header className="bg-white border-b border-gray-200">
           <div className="flex items-center justify-between px-6 py-3">
             <h1 className="text-2xl font-bold text-gray-900">Content Management</h1>
+            {selectedItems.length > 0 && (
+              <Button 
+                variant="destructive"
+                size="sm"
+                onClick={() => {
+                  selectedItems.forEach(id => deleteItem(id));
+                  setSelectedItems([]);
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                <i className="ri-delete-bin-2-line mr-1"></i>
+                Delete Selected ({selectedItems.length})
+              </Button>
+            )}
             <div className="flex items-center">
               <span className="text-sm text-gray-500 mr-4">
                 {user ? `Welcome, ${user.username}` : 'Loading...'}
