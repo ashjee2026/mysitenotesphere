@@ -23,6 +23,7 @@ const navItems: NavItem[] = [
   { name: "Class 12", href: "/category/class-12" },
   { name: "JEE", href: "/category/jee" },
   { name: "NEET", href: "/category/neet" },
+  { name: "About", href: "/about" },
 ];
 
 export default function Header() {
