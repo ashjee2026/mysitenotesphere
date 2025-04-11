@@ -57,6 +57,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: "Internal server error" });
     }
   });
+  
+  // Create a new admin user
+  app.post("/api/admin/create", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password are required" });
+      }
+      
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+      
+      const newAdmin = await storage.createUser({
+        username,
+        password,
+        isAdmin: true,
+      });
+      
+      return res.status(201).json({ 
+        id: newAdmin.id, 
+        username: newAdmin.username, 
+        isAdmin: newAdmin.isAdmin 
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  });
 
   // Classes routes
   app.get("/api/classes", async (req, res) => {
