@@ -206,11 +206,11 @@ export class MemStorage implements IStorage {
       this.resourceTypes.set(type.id, type);
     });
 
-    // Create admin user
+    // Create admin user with a simple plain text password for demo purposes
     const adminUser: User = {
       id: 0,
       username: "admin",
-      password: "5dca0fe479c932566dca8ab9541450cd9e627ad529e98d5468664e380b06c801c4ecdc16af16f5262f6974dbba33509331d3a5358c43b7773d585b6d56d1e01f.3bdb9fd635eefd4c2fb7e5abcd860ea7", // 'admin123'
+      password: "admin123",  // In a real application, this would be hashed
       isAdmin: true,
       createdAt: "2023-01-01"
     };
