@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Book } from "@shared/schema";
@@ -28,8 +29,13 @@ export function BookCard({ book, variant = "large", className }: BookCardProps) 
         description: "Your download should begin shortly."
       });
 
-      // In a real app, this would trigger the actual file download
-      console.log("Download URL:", data.fileUrl);
+      // Create a temporary link to trigger download
+      const link = document.createElement('a');
+      link.href = data.fileUrl;
+      link.download = book.title;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (error) {
       toast({
         title: "Download failed",
@@ -106,13 +112,22 @@ export function BookCard({ book, variant = "large", className }: BookCardProps) 
               </span>
             </div>
             <Button 
-              variant="ghost" 
-              size="icon" 
-              className="text-primary hover:text-blue-700"
+              variant="default"
+              className="text-white bg-primary hover:bg-primary/90"
               onClick={handleDownload}
               disabled={isDownloading}
             >
-              <i className="fas fa-arrow-down text-sm"></i>
+              {isDownloading ? (
+                <>
+                  <i className="fas fa-spinner fa-spin mr-2"></i>
+                  Downloading...
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-download mr-2"></i>
+                  Download
+                </>
+              )}
             </Button>
           </div>
         </div>
@@ -148,13 +163,20 @@ export function BookCard({ book, variant = "large", className }: BookCardProps) 
             <i className="fas fa-star text-yellow-400 mr-1"></i> {(book.rating / 10).toFixed(1) || "0.0"}
           </span>
           <Button 
-            variant="ghost" 
-            size="sm" 
-            className="text-primary hover:text-blue-700 text-xs p-0 h-auto"
+            variant="default" 
+            size="sm"
+            className="text-white bg-primary hover:bg-primary/90"
             onClick={handleDownload}
             disabled={isDownloading}
           >
-            <i className="fas fa-download mr-1"></i> Download
+            {isDownloading ? (
+              <i className="fas fa-spinner fa-spin"></i>
+            ) : (
+              <>
+                <i className="fas fa-download mr-1"></i>
+                Download
+              </>
+            )}
           </Button>
         </div>
       </div>
