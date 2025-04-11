@@ -1,31 +1,79 @@
-import { Category, ResourceFile, ResourceType } from "../shared/schema";
+import { Category, InsertResourceFile, InsertUser, ResourceFile, ResourceType, User } from "../shared/schema";
 import { format } from "date-fns";
+import session from "express-session";
+import createMemoryStore from "memorystore";
+
+const MemoryStore = createMemoryStore(session);
 
 export interface IStorage {
+  // Session store
+  sessionStore: session.Store;
+  
+  // User methods
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  
+  // Resource categories
   getAllCategories(): Promise<Category[]>;
   getCategoryById(id: string): Promise<Category | undefined>;
+  
+  // Resource types
   getAllResourceTypes(): Promise<ResourceType[]>;
   getResourceTypeById(id: string): Promise<ResourceType | undefined>;
+  
+  // Resources
   getAllResources(): Promise<ResourceFile[]>;
   getResourceById(id: number): Promise<ResourceFile | undefined>;
   getFeaturedResources(): Promise<ResourceFile[]>;
   getRecentResources(): Promise<ResourceFile[]>;
   getResourcesByCategory(categoryId: string): Promise<ResourceFile[]>;
+  createResource(resource: InsertResourceFile): Promise<ResourceFile>;
 }
 
 export class MemStorage implements IStorage {
   private categories: Map<string, Category>;
   private resourceTypes: Map<string, ResourceType>;
   private resources: Map<number, ResourceFile>;
+  private users: Map<number, User>;
+  private nextUserId: number = 1;
+  private nextResourceId: number = 13; // Starting after the sample data
+  sessionStore: session.Store;
 
   constructor() {
     this.categories = new Map();
     this.resourceTypes = new Map();
     this.resources = new Map();
+    this.users = new Map();
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    });
     
     this.initializeSampleData();
   }
 
+  // User methods
+  async getUser(id: number): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.username === username);
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    const id = this.nextUserId++;
+    const now = new Date();
+    const newUser: User = {
+      id,
+      ...user,
+      createdAt: now.toISOString(),
+    };
+    this.users.set(id, newUser);
+    return newUser;
+  }
+
+  // Category methods
   async getAllCategories(): Promise<Category[]> {
     return Array.from(this.categories.values());
   }
@@ -34,6 +82,7 @@ export class MemStorage implements IStorage {
     return this.categories.get(id);
   }
 
+  // Resource type methods
   async getAllResourceTypes(): Promise<ResourceType[]> {
     return Array.from(this.resourceTypes.values());
   }
@@ -42,6 +91,7 @@ export class MemStorage implements IStorage {
     return this.resourceTypes.get(id);
   }
 
+  // Resource methods
   async getAllResources(): Promise<ResourceFile[]> {
     return Array.from(this.resources.values());
   }
@@ -65,6 +115,21 @@ export class MemStorage implements IStorage {
   async getResourcesByCategory(categoryId: string): Promise<ResourceFile[]> {
     return Array.from(this.resources.values())
       .filter(resource => resource.categoryId === categoryId);
+  }
+
+  async createResource(resource: InsertResourceFile): Promise<ResourceFile> {
+    const id = this.nextResourceId++;
+    const now = new Date().toISOString();
+    
+    const newResource: ResourceFile = {
+      id,
+      ...resource,
+      createdAt: now,
+      updatedAt: now
+    };
+    
+    this.resources.set(id, newResource);
+    return newResource;
   }
 
   private initializeSampleData() {
@@ -129,6 +194,17 @@ export class MemStorage implements IStorage {
       this.resourceTypes.set(type.id, type);
     });
 
+    // Create admin user
+    const adminUser: User = {
+      id: 0,
+      username: "admin",
+      password: "$2b$10$T7oiRsYDEAn1S.4RAeAO3.bQ8NWXR5Gdl0BxKbXUQvO/azbBQZbEq", // hashed version of 'admin123'
+      isAdmin: true,
+      createdAt: "2023-01-01"
+    };
+    this.users.set(0, adminUser);
+    this.nextUserId = 1;
+
     // Initialize resources
     const resources: ResourceFile[] = [
       {
@@ -144,7 +220,8 @@ export class MemStorage implements IStorage {
         typeName: "Textbooks",
         isFeatured: true,
         createdAt: "2023-06-15",
-        updatedAt: "2023-06-15"
+        updatedAt: "2023-06-15",
+        uploadedBy: 0
       },
       {
         id: 2,
@@ -159,7 +236,8 @@ export class MemStorage implements IStorage {
         typeName: "Revision Materials",
         isFeatured: true,
         createdAt: "2023-08-20",
-        updatedAt: "2023-08-20"
+        updatedAt: "2023-08-20",
+        uploadedBy: 0
       },
       {
         id: 3,
@@ -313,7 +391,12 @@ export class MemStorage implements IStorage {
       }
     ];
 
+    // Add uploadedBy field to all resources
     resources.forEach(resource => {
+      // Ensure all resources have the uploadedBy field set to admin user
+      if (!('uploadedBy' in resource)) {
+        (resource as ResourceFile).uploadedBy = 0;
+      }
       this.resources.set(resource.id, resource);
     });
   }
