@@ -12,11 +12,18 @@ import {
   insertTopicSchema
 } from "@shared/schema";
 
+// Extending Express session
+declare module 'express-session' {
+  interface SessionData {
+    userId?: number;
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
 
   // Authentication routes
-  app.post("/api/admin/login", async (req, res) => {
+  app.post("/api/auth/login", async (req, res) => {
     try {
       const { username, password } = req.body;
       
@@ -29,29 +36,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user || user.password !== password) {
         return res.status(401).json({ message: "Invalid username or password" });
       }
+
+      // Create session data
+      req.session.userId = user.id;
       
-      // In a real app, we would create a session here
-      // For simplicity, we'll just return the user
-      return res.status(200).json({ id: user.id, username: user.username, isAdmin: user.isAdmin });
+      return res.status(200).json({ 
+        id: user.id, 
+        username: user.username, 
+        isAdmin: user.isAdmin 
+      });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Internal server error" });
     }
   });
 
+  app.post("/api/auth/logout", (req, res) => {
+    try {
+      req.session.destroy((err) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ message: "Error logging out" });
+        }
+        return res.status(200).json({ message: "Logged out successfully" });
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.get("/api/auth/session", async (req, res) => {
+    try {
+      if (!req.session || !req.session.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        req.session.destroy((err) => {
+          if (err) console.error(err);
+        });
+        return res.status(401).json({ message: "User not found" });
+      }
+      
+      return res.status(200).json({ 
+        id: user.id, 
+        username: user.username, 
+        isAdmin: user.isAdmin 
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Admin check endpoint
   app.get("/api/admin/me", async (req, res) => {
     try {
-      // In a real app, we would check for a session or token
-      // For now, we'll return a mock admin user
-      const adminUser = await storage.getUserByUsername("admin");
-      if (adminUser) {
-        return res.status(200).json({ 
-          id: adminUser.id, 
-          username: adminUser.username, 
-          isAdmin: adminUser.isAdmin 
-        });
+      if (!req.session || !req.session.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
       }
-      return res.status(401).json({ message: "Not authenticated" });
+
+      const userId = req.session.userId;
+      const user = await storage.getUser(userId);
+      
+      if (!user || !user.isAdmin) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      return res.status(200).json({ 
+        id: user.id, 
+        username: user.username, 
+        isAdmin: user.isAdmin 
+      });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Internal server error" });
