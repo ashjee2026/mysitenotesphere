@@ -21,6 +21,7 @@ function Router() {
           <Route path="/" component={Home} />
           <Route path="/category/:categoryId" component={Category} />
           <Route path="/auth" component={AuthPage} />
+          <Route path="/about" component={() => import("@/pages/about").then(m => m.default)} />
           <ProtectedRoute path="/admin" component={AdminPage} adminOnly={true} />
           <Route component={NotFound} />
         </Switch>
