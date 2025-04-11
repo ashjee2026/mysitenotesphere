@@ -5,8 +5,12 @@ import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Category from "@/pages/Category";
+import AuthPage from "@/pages/auth-page";
+import AdminPage from "@/pages/admin-page";
 import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
+import { AuthProvider } from "@/hooks/use-auth";
+import { ProtectedRoute } from "@/lib/protected-route";
 
 function Router() {
   return (
@@ -16,6 +20,8 @@ function Router() {
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/category/:categoryId" component={Category} />
+          <Route path="/auth" component={AuthPage} />
+          <ProtectedRoute path="/admin" component={AdminPage} adminOnly={true} />
           <Route component={NotFound} />
         </Switch>
       </div>
@@ -27,8 +33,10 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
-      <Toaster />
+      <AuthProvider>
+        <Router />
+        <Toaster />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

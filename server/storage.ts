@@ -66,7 +66,9 @@ export class MemStorage implements IStorage {
     const now = new Date();
     const newUser: User = {
       id,
-      ...user,
+      username: user.username,
+      password: user.password,
+      isAdmin: user.isAdmin || false,
       createdAt: now.toISOString(),
     };
     this.users.set(id, newUser);
@@ -123,7 +125,17 @@ export class MemStorage implements IStorage {
     
     const newResource: ResourceFile = {
       id,
-      ...resource,
+      title: resource.title,
+      description: resource.description,
+      fileSize: resource.fileSize,
+      fileName: resource.fileName,
+      filePath: resource.filePath,
+      categoryId: resource.categoryId,
+      categoryName: resource.categoryName,
+      typeId: resource.typeId,
+      typeName: resource.typeName,
+      isFeatured: resource.isFeatured ?? false,
+      uploadedBy: resource.uploadedBy ?? null,
       createdAt: now,
       updatedAt: now
     };
